@@ -1,0 +1,260 @@
+---
+title: "Chapter 3 - Data Transformation - Row"
+output:
+  pdf_document: default
+  html_document: default
+date: "2026-03-19"
+---
+
+```{r}
+library(nycflights13)
+library(tidyverse)
+```
+
+# Review the data
+
+### 1. glimpse(flights)
+
+### 2. view(flights)
+
+### 3. print(flights)
+
+# dplyr Basics
+
+### 1. pip \|\> or %\>%
+
+```{r warning=FALSE}
+flights %>% 
+  filter(dest == 'IAH') %>% 
+  group_by(year, month, day) %>% 
+  summarize(
+    arr_delya = mean(arr_delay, na.rm = TRUE)
+  )
+```
+
+# Rows - Most Important verbs:
+
+### 1. filters(): keeps row based on the values of the columns
+
+-   =; !=; \>; \>=;\<;\<=
+
+-   %in% c(): check if in a list
+
+### 2. arrange(): changes the order of the rows based on the value of the columns
+
+-   desc()
+
+### 3. distinct(): finds all the unique rows in a database.
+
+-   .keep_all = TRUE
+
+### 4. count()
+
+-   sort = TRUE
+
+### 5. head(10)
+
+-   only show 10 rows
+
+### 6. nrow(): show how many rows available
+
+flights %\>%
+
+nrow()
+
+### 7. slice_max(distance, n = 5)
+
+distinct(distance) %\>% \# select distinct first
+
+slice_min(distance, n = 5) \# get the first 5 mins
+
+### 8. select()
+
+-   list of the columns
+
+### 1. Filters()
+
+-   =; !=; \>; \>=;\<;\<=
+
+-   %in% c(): check if in a list
+
+```{r}
+# filter flight depart delay more than 120
+# <, <=, >, >=, !=
+flights %>% 
+  filter(dep_delay > 120)
+```
+
+```{r}
+# &, |
+flights %>% 
+  filter(month == 1 & day == 1)
+```
+
+```{r}
+# %in%: keeps rows where the variable equals one of the vlaues on the right.
+flights %>% 
+  filter(month %in% c(1, 2))
+```
+
+```{r}
+# asign to a new variable
+jan1 <- flights %>% 
+  filter(month == 1 & day == 1)
+```
+
+### 2. arrange()
+
+-   desc(): sort by columns
+
+```{r}
+# desc(): decrease order
+flights %>% 
+  arrange(year, month, day, desc(dep_delay))
+```
+
+### 3. distinct()
+
+-   .keep_all = TRUR: keep the other columns when filtering for unique rows
+
+```{r}
+flights %>% 
+  distinct(month)
+
+flights %>% 
+  distinct(origin, dest)
+
+flights %>% 
+  distinct(origin, dest, .keep_all = TRUE)
+```
+
+### 4. count()
+
+-   sort = TRUE
+
+```{r}
+flights %>% 
+  count(origin, dest, sort = TRUE)
+```
+
+## Exercises
+
+```{r}
+names(flights)
+```
+
+-   Had an arrival delay of two or more hours
+
+```{r}
+flights %>% 
+  filter(arr_delay > 120)
+```
+
+-   Flew to Houston (`IAH` or `HOU`)
+
+```{r}
+flights %>% 
+  filter(dest %in% c('IAH','HOU'))
+```
+
+-   Were operated by United, American, or Delta
+
+```{r}
+flights %>% 
+  filter(carrier %in% c('UA', 'AA', 'DA'))
+```
+
+```{r}
+flights %>% 
+  filter(month %in% c(7, 8, 9))
+```
+
+```{r}
+flights %>% 
+  filter(arr_delay >= 120 & dep_delay <= 0)
+```
+
+```{r}
+flights %>% 
+  filter(dep_delay >= 50 & dep_delay - arr_delay <= 30)
+```
+
+1.  **Sort `flights` to find the flights with the longest departure delays. Find the flights that left earliest in the morning.**
+
+```{r}
+names(flights)
+
+```
+
+```{r}
+flights %>% 
+  arrange(desc(dep_delay))
+
+```
+
+```{r}
+flights %>% 
+  arrange(dep_time) %>% 
+  select(year, month, day, carrier, flight, dep_delay) %>% 
+  head(10)
+  
+
+```
+
+1.  **Sort `flights` to find the fastest flights. (Hint: Try including a math calculation inside of your function.)**
+
+```{r}
+flights %>% 
+  mutate(miles_per_hour = distance / (air_time/60)) %>% 
+  select(year, month, day, carrier, flight, distance, air_time, miles_per_hour) %>% 
+  arrange(desc(miles_per_hour))
+
+```
+
+1.  **Was there a flight on every day of 2013?**
+
+```{r}
+flights %>% 
+  distinct(year, month, day) %>% 
+  nrow()
+
+```
+
+1.  **Which flights traveled the farthest distance? Which traveled the least distance?**
+
+```{r}
+flights %>% 
+  arrange(desc(distance)) %>% 
+  head(1)
+```
+
+```{r}
+flights %>% 
+  distinct(distance) %>% 
+  slice_max(distance, n = 5)
+
+```
+
+```{r}
+flights %>% 
+  distinct(distance) %>% 
+  slice_min(distance, n=5)
+```
+
+1.  Does it matter what order you used [`filter()`](https://dplyr.tidyverse.org/reference/filter.html) and [`arrange()`](https://dplyr.tidyverse.org/reference/arrange.html) if you’re using both? Why/why not? Think about the results and how much work the functions would have to do.
+
+    -   the result would be the same
+
+    -   the filter() -\> arrange() would be more efficient than arrange() -\> filter(). filter() -\> arrange() doesn't need to the arrange() the whole data set, only the ones after the filter()
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```

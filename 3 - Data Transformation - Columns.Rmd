@@ -1,0 +1,173 @@
+---
+title: "3 - Data Transformation - Columns"
+output: html_document
+date: "2026-03-20"
+---
+
+```{r}
+library(tidyverse)
+library(nycflights13)
+```
+
+## Columns
+
+### 1. mutate()
+
+-   Creates new columns that are derived from the existing columns
+
+-   .before = 1: argument to instead add the variables to the left side, 1 means the first column.
+
+-   .before = day: before the column day - day is a variable
+
+-   .keep = 'used': only keep the used columns
+
+### 2. select()
+
+-   changes which columns are present
+
+-   select(year, month, day): by columns
+
+-   select(year:day): from year to day
+
+-   select(! year:day): select all columns except year:day
+
+-   select(where(is.character)): column data type is string
+
+-   select(starts_with('year')): column name start with 'year'
+
+-   select(ends_with('year')): column name end with 'year'
+
+-   select(contains('year')): column name contain 'year'
+
+-   select(num_range('x',1:3)): matches: x1, x2, and x3
+
+-   select(tail_num = tailnum): rename column name from 'tailnum' to 'tail_num', this would only show the column 'tail_nam'
+
+### 3. rename()
+
+-   changes the names of columns, and show all columns with the renamed one
+
+-   rename(tail_num = tailnum)
+
+### 4. relocate()
+
+-   changes the positions of the columns
+
+-   relocate(year): will move column 'year' to the first column
+
+-   relocate(year, .before=day): move year to before day
+
+-   relocate(starts_with('arr'), .before=dep_time): move columns starts with 'arr' before 'dep_time'
+
+### 1. mutate()
+
+```{r}
+flights %>% 
+  mutate(
+    gain = dep_delay - arr_delay, # gain by the speed
+    speed = distance / air_time * 60,
+    .before = 1
+  )
+```
+
+```{r}
+flights %>% 
+  mutate(
+    gain = dep_delay - arr_delay,
+    hours = air_time / 60, 
+    gian_per_hour = gain / hours,
+    .keep='used'
+  )
+```
+
+### 2. Select()
+
+```{r}
+flights %>% 
+  select(year, month, day) %>% 
+  head(5)
+```
+
+```{r}
+flights %>% 
+  select(year:day) %>% 
+  head(5)
+```
+
+```{r}
+flights %>% 
+  select(! year:day) %>% 
+  head(5)
+```
+
+```{r}
+flights %>% 
+  select(where(is.character))
+```
+
+```{r}
+flights %>% 
+  select(starts_with('year'))
+```
+
+```{r}
+flights %>% 
+  select(tail_num = tailnum)
+```
+
+```{r}
+flights %>% 
+  rename(tail_num = tailnum)
+```
+
+```{r}
+flights %>% 
+  relocate(time_hour, air_time)
+```
+
+```{r}
+flights %>% 
+  relocate(year:dep_time, .after = time_hour)
+```
+
+```{r}
+flights %>% 
+  relocate(starts_with('arr'), .before = dep_time)
+```
+
+### Exercises
+
+1.  **Compare `dep_time`, `sched_dep_time`, and `dep_delay`. How would you expect those three numbers to be related?**
+
+```{r}
+flights %>% 
+  mutate(delay = 
+           (trunc(dep_time/100)  * 60 + (dep_time/100 - trunc(dep_time/100))*100) -
+           (trunc(sched_dep_time/100)  * 60 + (sched_dep_time/100 - trunc(sched_dep_time/100))*100)
+         ) %>% 
+  select(dep_time, sched_dep_time, delay, dep_delay)
+```
+
+1.  **Brainstorm as many ways as possible to select `dep_time`, `dep_delay`, `arr_time`, and `arr_delay`from `flights`.**
+
+```{r}
+flights %>% 
+  head(5)
+```
+
+```{r}
+flights %>% 
+  select(dep_time, dep_delay, arr_time, arr_delay) %>% 
+  head(5)
+```
+
+```{r}
+flights %>% 
+  select((contains('dep') | contains('arr')) & !contains('sched') & !contains('carr')) 
+```
+
+```{r}
+```
+
+```{r}
+```
